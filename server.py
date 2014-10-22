@@ -2,7 +2,7 @@
 
 ##################
 # Global Imports #
-from flask import Flask, make_response, request
+from flask import *
 import numpy as np
 import json
 
@@ -20,10 +20,12 @@ app.debug = True
 # Setting up the board
 board = TTTBoard.Tic_Tac_Board("X", "O")
 
-# Getting the root page.
-@app.route("/")
+@app.route("/", methods=["GET"])
 def home():
-    return "Hello world"
+    return render_template("home.html")
+
+## Serving the home page.
+#url_for("/", filename="home.html")
 
 # Getting the state of the board.
 @app.route("/api/pull/state", methods=["GET"])
