@@ -34,6 +34,26 @@ class Board:
         else:
             self.__board = board
 
+    # Checking the combined value for a given row.
+    def __getRowValue(self, row):
+        return np.sum(self.__board[row, :])
+
+    # Checking the combined value for a given col.
+    def __getColValue(self, col):
+        return np.sum(self.__board[:, col])
+
+    # Getting the combined diagonal value, top-left to bottom-right.
+    def __getDiagTLBR(self):
+        return np.sum([self.getState(0, 0),
+                       self.getState(1, 1),
+                       self.getState(2, 2)])
+
+    # Getting the combined diagonal value, top-right to bottom-left.
+    def __getDiagTRBL(self):
+        return np.sum([self.getState(0, 2),
+                       self.getState(1, 1),
+                       self.getState(2, 0)])
+
     # Copying this board into another board.
     def copy(self):
         return Board(np.copy(self.__board))
@@ -76,26 +96,6 @@ class Board:
     # Getting the state witin the board.
     def getState(self, row, col):
         return self.__board[row, col]
-
-    # Checking the row value for a given row.
-    def getRowValue(self, row):
-        return np.sum(self.__board[row, :])
-
-    # Checking the col value for a given col.
-    def getColValue(self, col):
-        return np.sum(self.__board[:, col])
-
-    # Getting the diagonal value, top-left to bottom-right.
-    def getDiagTLBR(self):
-        return np.sum([self.getState(0, 0),
-                       self.getState(1, 1),
-                       self.getState(2, 2)])
-
-    # Getting the diagonal value, top-right to bottom-left.
-    def getDiagTRBL(self):
-        return np.sum([self.getState(0, 2),
-                       self.getState(1, 1),
-                       self.getState(2, 0)])
 
     # Checking if a state is empty.
     def isEmpty(self, row, col):
