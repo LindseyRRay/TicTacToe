@@ -1,0 +1,3 @@
+# Ingoring some unwanted python files.
+*.pyc
+__pycache__/

@@ -26,8 +26,9 @@ class Tic_Tac_Board(object):
 		'''assigns a move to a position on the board '''
 		if self.check_space(row, column):
 			self.board[row, column] = self.translate_player_symbol(player_symbol)
+			return False
 		else:
-			raise ValueError("Position already taken")
+			return True
 
 	def copy_board_and_move(self, row, column, player_symbol):
 		'''assigns a move to a position on the board and returns a new copy of the board'''
@@ -65,6 +66,22 @@ class Tic_Tac_Board(object):
 
 	
 		return 0
+
+	def check_both(self):
+		p1 = self.check_win("X")
+		p2 = self.check_win("O")
+
+		if p1 == 0:
+			if p2 == 0:
+				return 0
+			return p2
+		return p1
+
+	def players_win(self):
+		w = check_win(self.player1)
+		if w == -1:
+			return board.player2_value
+		elsif
 
 	def game_over(self):
 		'' 'checks it the game has ended'''
