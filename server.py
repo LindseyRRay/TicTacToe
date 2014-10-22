@@ -51,15 +51,15 @@ def runAI(board):
 
 @app.route("/api/push/move", methods=["POST"])
 def postMove():
-    if request.form["coord"] == None:
+    decoded = json.loads((request.data.decode("utf-8")))
+    if decoded["row"] == None or decoded["col"] == None:
         return json.dumps({
             "error"  : True,
             "msg"    : "Not enough data.",
             "refresh": False
         })
     else:
-        parsed = json.loads(request.form["coord"])
-        if board.player_move(parsed["row"], parsed["col"], "X"):
+        if board.player_move(decoded["row"], decoded["col"], "X"):
             return json.dumps({
                 "error"  : True,
                 "msg"    : "Position is taken.",
