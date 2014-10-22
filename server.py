@@ -53,25 +53,28 @@ def runAI(board):
 def postMove():
     decoded = json.loads((request.data.decode("utf-8")))
     if decoded["row"] == None or decoded["col"] == None:
-        return json.dumps({
+        myJson = json.dumps({
             "error"  : True,
             "msg"    : "Not enough data.",
             "refresh": False
         })
     else:
         if board.player_move(decoded["row"], decoded["col"], "X"):
-            return json.dumps({
+            myJson = json.dumps({
                 "error"  : True,
                 "msg"    : "Position is taken.",
                 "refresh": False
             })
         else:
             runAI(board)
-            return json.dumps({
+            myJson = json.dumps({
                 "error"  : False,
                 "msg"    : "AI Updated.",
                 "refresh": True
             })
+    resp = make_response(myJson, 200)
+    resp.headers["Content-Type"] = "application/json;charset=UTF-8"
+    return resp
 
 # Starting the app.
 app.run()
