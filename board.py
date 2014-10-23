@@ -45,6 +45,13 @@ class Board:
 		else:
 			return True
 
+	# Checking whose move it is.
+	def whoseMove(self):
+		if np.sum(self.board) == 0:
+			return BoardState.p1
+		else:
+			return BoardState.p2
+
 	# Doing a move for the player.
 	def performMove(self, row, col, val):
 		if not self.canMove(row, col, val):
@@ -79,7 +86,7 @@ class Board:
 				return p
 			
 			for i in range(0, 3):
-				if np.sum(board[i, :]) == w or np.sum(board[:, i]) == w:
+				if np.sum(self.board[i, :]) == w or np.sum(self.board[:, i]) == w:
 					return p
 
 		return BoardState.nil
