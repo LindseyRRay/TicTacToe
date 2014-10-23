@@ -15,7 +15,23 @@ class TestTTT (unittest.TestCase):
         game.board[2,0] = -1
         game.board[2,1] = -1
 
-        self.assertEqual(1, game.findWinner())   
+        self.assertEqual(1, game.findWinner())  
+    
+
+    def test_game_over(self):
+        game = b.Board()
+        game.board[0,0] = 1
+        game.board[0,1] = 1
+        game.board[0,2] = 1
+        game.board[1,0] = 1
+        game.board[1,1] = 1
+        game.board[1,2] = -1
+        game.board[2,0] = -1
+        game.board[2,1] = -1
+        game.board[2,2] = -1
+
+        self.assertEqual(0, game.findWinner()) 
+        self.assertEqual(True, game.isGameOver())      
 
 
     def test_game_over(self):
@@ -33,7 +49,10 @@ class TestTTT (unittest.TestCase):
         for row in range(0,3):
             for col in range(0,3):
                 test_a = game.copyThenPerformMove(row, col, 1)
+                print(test_a.board)
+
                 test_b = game.copyThenPerformMove(row, col, 1)
+                print(test_b.board)
                 print("Row: %s" % row)
                 print("col: %s" % col)
                 
@@ -51,7 +70,6 @@ class TestTTT (unittest.TestCase):
 
         self.assertEqual(top_move, (0,2))  
         
-
 
 if __name__ == '__main__':
     unittest.main()
