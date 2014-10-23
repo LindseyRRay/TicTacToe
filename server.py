@@ -8,7 +8,8 @@ import json
 
 #################
 # Local Imports #
-import TTTBoard
+import minimax as m
+import board as b
 
 ########
 # Code #
@@ -18,28 +19,26 @@ app = Flask(__name__)
 app.debug = True
 
 # Setting up the board
-board = TTTBoard.Tic_Tac_Board("X", "O")
+board = b.Board()
 
+# Serving the home page.
 @app.route("/", methods=["GET"])
 def home():
     return render_template("home.html")
 
-## Serving the home page.
-#url_for("/", filename="home.html")
-
 # Getting the state of the board.
 @app.route("/api/pull/state", methods=["GET"])
 def getState():
-    over = board.game_over()
+    over = board.isGameOver()
     if over:
-        winner = board.check_both()
+        winner = board.findWinner()
     else:
-        winner = board.default_val
+        winner = b.BoardState.nil
 
     resp = make_response(json.dumps({
         "over"  : over,
         "winner": winner,
-        "turn"  : board.prompt_move(),
+        "turn"  : board.whoseMove(),
         "state" : np.ravel(board.board).tolist()
     }), 200)
     resp.headers["Content-Type"] = "application/json;charset=UTF-8"
@@ -47,11 +46,19 @@ def getState():
 
 # Pushing a move to the board.
 def runAI(board):
-    return None # TODO: Implement a way to run the AI on the board.
+    if board.whoseMove() == b.BoardState.p2:
+        pos, _, _ = m.optimalGameStrategy(board)
+        board.performMove(pos[0], pos[1], b.BoardState.p2)
+        return True
+    return False
 
 @app.route("/api/push/move", methods=["POST"])
 def postMove():
     decoded = json.loads((request.data.decode("utf-8")))
+
+    decoded["row"] = int(decoded["row"])
+    decoded["col"] = int(decoded["col"])
+
     if decoded["row"] == None or decoded["col"] == None:
         myJson = json.dumps({
             "error"  : True,
@@ -59,19 +66,25 @@ def postMove():
             "refresh": False
         })
     else:
-        if board.player_move(decoded["row"], decoded["col"], "X"):
+        if not board.performMove(decoded["row"], decoded["col"], b.BoardState.p1):
             myJson = json.dumps({
                 "error"  : True,
                 "msg"    : "Position is taken.",
                 "refresh": False
             })
         else:
-            runAI(board)
-            myJson = json.dumps({
-                "error"  : False,
-                "msg"    : "AI Updated.",
-                "refresh": True
-            })
+            if not runAI(board):
+                myJson = json.dumps({
+                    "error"  : True,
+                    "msg"    : "This shouldn't be happening.",
+                    "refresh": False
+                })
+            else:
+                myJson = json.dumps({
+                    "error"  : False,
+                    "msg"    : "AI Updated.",
+                    "refresh": True
+                })
     resp = make_response(myJson, 200)
     resp.headers["Content-Type"] = "application/json;charset=UTF-8"
     return resp
