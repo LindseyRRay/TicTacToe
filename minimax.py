@@ -23,18 +23,24 @@ def Optimal_Game_Strategy(board, move_count=0):
         player_value = 1
         best_score = -2
 
+    #pdb.set_trace()
 
 #Recursive Base Case
     if board.isGameOver():
+        #pdb.set_trace()
         best_score = board.findWinner()       
         #print("Base Case")
-        return None, player_value, move_count
+        return None, best_score, move_count
     
     else:
         for move in board.findMoves():
             #print("Move =  %s,%s" %(move[0], move[1]))
             new_board = board.copyThenPerformMove(move[0], move[1], player_value)
             _, score, move_count = Optimal_Game_Strategy(new_board, move_count)
+            if move_count ==1:
+                print("not base case")
+                print(new_board.board)
+                print(score)
         #Append score to score history
             #score_history.append(score)
            # move_history.append(move)
