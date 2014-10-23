@@ -44,6 +44,20 @@ def getState():
     resp.headers["Content-Type"] = "application/json;charset=UTF-8"
     return resp
 
+# Resetting the board.
+@app.route("/api/push/reset", methods=["POST"])
+def post_reset():
+    global board
+    board = b.Board()
+
+    resp = make_response(json.dumps({
+        "error"  : False,
+        "msg"    : "Game reset!",
+        "refresh": True
+    }), 200)
+    resp.headers["Content-Type"] = "application/json;charset=UTF-8"
+    return resp
+
 # Pushing a move to the board.
 def runAI(board):
     if board.whoseMove() == board.p2:
