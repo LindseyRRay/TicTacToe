@@ -1,37 +1,96 @@
-function respond_click() {
-	var json = {
-        row: $(this).attr("data-row"),
-        col: $(this).attr("data-col")
-	};
-	
-    $.ajax({
-        url: '/api/push/move',
-        type: 'POST',
-        contentType: 'application/json;charset=UTF-8',
-        data: JSON.stringify(json)
-    }).done(function (data) {
-		var msg = $("#messagebox");
-		msg.html(data['msg']);
+// The client-side config for the game.
+var config = {
+    p1 :  1,
+    p2 : -1,
+    nil:  0,
 
-		if (data['error']) {
-			msg.removeClass("info");
-			msg.addClass("danger");
-		}
-		else {
-			msg.removeClass("danger");
-			msg.addClass("info");	
-		}
-	});
+    p1Color : '#ff0000',
+    p2Color : '#00ff00',
+    nilColor: '#aaaaaa'
+};
+
+// The client-side state of the game.
+var localState = {
+    state   : [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+    turn    : 1,
+    over    : false,
+    winner  : 0,
+    canMove : true
+};
+
+// Performing some function with the state from the server.
+function withState(fn) {
+    $.ajax({
+        url: '/api/pull/state',
+        type: 'GET'
+    }).done(fn);
 }
 
+// Redrawing the board with a given state.
+function drawBoard() {
+    console.log(localState);
+    for (var i = 0; i < 9; i++) {
+        var lc;
+        if (localState.state[i] == 0)
+            lc = config.nilColor;
+        else if (localState.state[i] == 1)
+            lc = config.p1Color;
+        else if (localState.state[i] == -1)
+            lc = config.p2Color;
 
+        $('span[data-idx=' + i.toString() + ']').css('background', lc);
+    }
+}
 
+// Setting the initial state for the client.
+function updateLocalState(state) {
+    withState(function (data) {
+        localState.state = data.state;
+        localState.turn  = data.turn;
+        localState.over  = data.over;
+        localState.winner = data.winner;
+        
+        if (localState.turn != 1 || localState.over)
+            localState.canMove = false;
+        else
+            localState.canMove = true;
+
+        drawBoard();
+    });
+}
+
+// Responding to a click from the user.
+function respondClick() {
+    if (localState.canMove) {
+        var json = {
+            row: $(this).attr('data-row'),
+            col: $(this).attr('data-col')
+        };
+
+        localState.canMove = false;
+        $('#messagebox').html('AI is moving...');
+
+        localState.state[parseInt($(this).attr('data-idx'))] = config.p1;
+        drawBoard();
+
+        $.ajax({
+            url: '/api/push/move',
+            type: 'POST',
+            contentType: 'application/json;charset=UTF-8',
+            data: JSON.stringify(json)
+        }).done(function (data) {
+            $('#messagebox').html(data['msg']);
+            updateLocalState();
+        });
+    }
+}
+
+// Stuff to run when the page has rendered.
 $(document).ready(function () {
-	//alert("Getting it done");
-	$(".tictacgrid").each(function() {
-		$(this).html("a");
-		$(this).css("background", "#ff0000");
-		$(this).click(respond_click);
-	});
+    updateLocalState();
+
+    $('.tictacgrid').each(function() {
+        $(this).click(respondClick);
+    });
 });
 
