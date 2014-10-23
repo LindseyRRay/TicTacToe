@@ -33,7 +33,7 @@ def getState():
     if over:
         winner = board.findWinner()
     else:
-        winner = b.BoardState.nil
+        winner = board.nil
 
     resp = make_response(json.dumps({
         "over"  : over,
@@ -47,7 +47,9 @@ def getState():
 # Pushing a move to the board.
 def runAI(board):
     if board.whoseMove() == board.p2:
-        pos, _, _ = m.optimalGameStrategy(board)
+
+        pos, _, _ = m.Optimal_Game_Strategy(board)
+
         board.performMove(pos[0], pos[1], board.p2)
         return True
     return False
@@ -66,6 +68,7 @@ def postMove():
             "refresh": False
         })
     else:
+
         if board.isGameOver():
             myJson = json.dumps({
                 "error": True,
