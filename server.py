@@ -56,44 +56,65 @@ def runAI(board):
 
 @app.route("/api/push/move", methods=["POST"])
 def postMove():
-    decoded = json.loads((request.data.decode("utf-8")))
+    if board.isGameOver():
+        w = board.findWinner()
 
-    decoded["row"] = int(decoded["row"])
-    decoded["col"] = int(decoded["col"])
-
-    if decoded["row"] == None or decoded["col"] == None:
-        myJson = json.dumps({
-            "error"  : True,
-            "msg"    : "Not enough data.",
-            "refresh": False
-        })
-    else:
-
-        if board.isGameOver():
+        if w == board.p1:
             myJson = json.dumps({
-                "error": True,
-                "msg": "Game Over",
-                "refresh": True})
+                "error"  : False,
+                "msg"    : "You won!",
+                "refresh": False
+            })
+        elif w == board.p2:
+            myJson = json.dumps({
+                "error"  : False,
+                "msg"    : "The AI won!",
+                "refresh": False
+            })
+        elif w == board.nil:
+            myJson = json.dumps({
+                "error"  : False,
+                "msg"    : "It's a tie!",
+                "refresh": False
+            })
+    else:
+        decoded = json.loads((request.data.decode("utf-8")))
 
-        elif not board.performMove(decoded["row"], decoded["col"], board.p1):
+        decoded["row"] = int(decoded["row"])
+        decoded["col"] = int(decoded["col"])
+
+        if decoded["row"] == None or decoded["col"] == None:
             myJson = json.dumps({
                 "error"  : True,
-                "msg"    : "Position is taken.",
+                "msg"    : "Not enough data.",
                 "refresh": False
             })
         else:
-            if not runAI(board):
+            if not board.performMove(decoded["row"], decoded["col"], board.p1):
                 myJson = json.dumps({
                     "error"  : True,
-                    "msg"    : "This shouldn't be happening.",
+                    "msg"    : "Position is taken.",
                     "refresh": False
                 })
+
+            if board.isGameOver():
+                return postMove()
             else:
-                myJson = json.dumps({
-                    "error"  : False,
-                    "msg"    : "AI Updated.",
-                    "refresh": True
-                })
+                if not runAI(board):
+                    myJson = json.dumps({
+                        "error"  : True,
+                        "msg"    : "This shouldn't be happening.",
+                        "refresh": False
+                    })
+                elif board.isGameOver():
+                    return postMove()
+                else:
+                    myJson = json.dumps({
+                        "error"  : False,
+                        "msg"    : "AI Updated.",
+                        "refresh": True
+                    })
+
     resp = make_response(myJson, 200)
     resp.headers["Content-Type"] = "application/json;charset=UTF-8"
     return resp
