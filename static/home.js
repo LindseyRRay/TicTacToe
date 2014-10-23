@@ -4,9 +4,9 @@ var config = {
     p2 : -1,
     nil:  0,
 
-    p1Color : '#ff0000',
-    p2Color : '#00ff00',
-    nilColor: '#aaaaaa'
+    p1Color : '#17e84b',
+    p2Color : '#fa0530',
+    nilColor: '#ffffff'
 };
 
 // The client-side state of the game.
@@ -59,6 +59,12 @@ function updateLocalState(state) {
     });
 }
 
+// Handling the response from a POST on a push route.
+function handleOutput(data) {
+    $('#messagebox').html(data['msg']);
+    updateLocalState();
+}
+
 // Responding to a click from the user.
 function respondClick() {
     if (localState.canMove) {
@@ -78,11 +84,16 @@ function respondClick() {
             type: 'POST',
             contentType: 'application/json;charset=UTF-8',
             data: JSON.stringify(json)
-        }).done(function (data) {
-            $('#messagebox').html(data['msg']);
-            updateLocalState();
-        });
+        }).done(handleOutput);
     }
+}
+
+// Responding to a click from the button reset.
+function resetClick() {
+    $.ajax({
+        url: '/api/push/reset',
+        type: 'POST'
+    }).done(handleOutput);
 }
 
 // Stuff to run when the page has rendered.
@@ -92,5 +103,7 @@ $(document).ready(function () {
     $('.tictacgrid').each(function() {
         $(this).click(respondClick);
     });
+
+    $('#resetbutton').click(resetClick);
 });
 
