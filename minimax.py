@@ -19,7 +19,7 @@ def Optimal_Game_Strategy(board, move_count=0):
     best_move = (-2, -2)
     best_move_count = sys.maxsize
 
-    if board.whoseMove():
+    if board.whoseMove()==1:
         player_value = 1
         best_score = -2
 
@@ -39,7 +39,7 @@ def Optimal_Game_Strategy(board, move_count=0):
             #score_history.append(score)
            # move_history.append(move)
 
-            if board.whoseMove():
+            if board.whoseMove()==1:
                 if score > best_score or (score == best_score and move_count < best_move_count):
                     best_score = score
                     best_move = move
