@@ -4,6 +4,7 @@
 # Local Imports #
 import board as b
 import pdb
+import sys
 
 
 ########
@@ -16,6 +17,7 @@ def Optimal_Game_Strategy(board, move_count=0):
     player_value = -1
     best_score = 2
     best_move = (-2, -2)
+    best_move_count = sys.maxsize
 
     if board.whoseMove():
         player_value = 1
@@ -29,9 +31,6 @@ def Optimal_Game_Strategy(board, move_count=0):
         return None, player_value, move_count
     
     else:
-        #print("No Base Case")
-        score_history = list()
-        move_history = list()
         for move in board.findMoves():
             #print("Move =  %s,%s" %(move[0], move[1]))
             new_board = board.copyThenPerformMove(move[0], move[1], player_value)
@@ -41,14 +40,15 @@ def Optimal_Game_Strategy(board, move_count=0):
            # move_history.append(move)
 
             if board.whoseMove():
-                if score >= best_score:
+                if score > best_score or (score == best_score and move_count < best_move_count):
                     best_score = score
                     best_move = move
+                    best_move_count = move_count
             else:
-                if score <= best_score:
+                if score < best_score or (score == best_score and move_count < best_move_count):
                     best_score = score
                     best_move = move
- 
+                    best_move_count = move_count
 
     return best_move, best_score, move_count
 
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     board.performMove(0, 0, board.p1)
     board.performMove(0, 2, board.p1)
     board.performMove(2, 1, board.p2)
-    
+    board.performMove(2, 2, board.p2)
 
     top_move, best_score, move_count = Optimal_Game_Strategy(board, 0)
     print(top_move)
