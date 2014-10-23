@@ -1,57 +1,54 @@
-import TTTBoard as tt
-import pdb as pdb
+#!/usr/bin/env python3
 
+#################
+# Local Imports #
+import board as b
 
-def Optimal_Game_Strategy(board, count_moves):
-	count_moves += 1
-	possible_moves = board.check_moves()
+########
+# Code #
 
-	best_score = 2
-	player_symbol="O"
-	best_move=(-2,-2)
+# Finding the optimal move for a given board.
+def optimalGameStrategy(board, moveCount=0):
+    moveCount += 1
+    bestScore = 2
+    bestMove = (-2, -2)
 
-	if board.prompt_move():
-		best_score = -2
-		player_symbol="X"
+    if board.whoseMove() == b.BoardState.p1:
+        bestScore = -2
 
+    if board.isGameOver():
+        score = board.findWinner()
+        if score == b.BoardState.p2:
+            bestScore = score
 
-	if board.game_over():
-		best_score = board.check_win("X")
-		score2 = board.check_win("O")
-		
-		if best_score == 0:
-			if score2 != 0:
-				best_score = score2
-		return None, best_score, count_moves
+        return None, bestScore, moveCount
+    else:
+        moves = board.findMoves()
+        for move in moves:
+            newBoard = board.copyThenPerformMove(move[0], move[1], b.BoardState.p2)
+            _, score, moveCount = optimalGameStrategy(newBoard, moveCount)
 
-	else:
-		for move in possible_moves:
-			new_board = board.copy_board_and_move(move[0], move[1], player_symbol)
-			_, score, count_moves = Optimal_Game_Strategy(new_board, count_moves)
-		#add in something to make the algorithm smarter
-			
-			#Check if anything is an absolute best score
-			if board.prompt_move():
-				if score > best_score:
-					best_score = score
-					best_move = move
+            if board.whoseMove() == b.BoardState.p1:
+                if score > bestScore:
+                    bestScore = score
+                    bestMove = move
+            else:
+                if score < bestScore:
+                    bestScore = score
+                    bestMove = move
 
-			else:
-				if score < best_score:
-					best_score = score
-					best_move = move
+    return bestMove, bestScore, moveCount
 
-	return best_move, best_score, count_moves
-
+###########
+# Testing #
 if __name__ == '__main__':
-	game = tt.Tic_Tac_Board("X", "O")
-	game.board[0,0] = 1
-	game.board[0,2] = 1
+    board = b.Board()
 
-	game.board[2,1] = -1
+    board.performMove(0, 0, b.BoardState.p1)
+    board.performMove(0, 2, b.BoardState.p1)
+    board.performMove(2, 1, b.BoardState.p2)
 
-	top_move, _, count = Optimal_Game_Strategy(game, 0)
-
-	print(top_move)
-
-
+    topMove, bestScore, moveCount = optimalGameStrategy(board, 0)
+    print(topMove)
+    print(bestScore)
+    print(moveCount)
