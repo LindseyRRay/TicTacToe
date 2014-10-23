@@ -75,7 +75,7 @@ def postMove():
                 "msg": "Game Over",
                 "refresh": True})
 
-        elif not board.performMove(decoded["row"], decoded["col"], b.BoardState.p1):
+        elif not board.performMove(decoded["row"], decoded["col"], board.p1):
             myJson = json.dumps({
                 "error"  : True,
                 "msg"    : "Position is taken.",
